@@ -1,13 +1,9 @@
 package perft;
 
 
-import oth.Othello;
+import oth.Oth;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.stream.IntStream.range;
-import static oth.Othello.vide;
 
 
 class PerftSpeedTest {
@@ -19,10 +15,10 @@ class PerftSpeedTest {
 
     static void perftTest() {
 
-        Othello o = new Othello(null);
+        Oth o = new Oth(null);
         double t0 = System.nanoTime();
         for (int depth = 1; depth <= MAX_DEPTH; depth++) {
-            PerftResult res = perft(new Othello(o), depth);
+            PerftResult res = perft(new Oth(o), depth);
             double t1 = System.nanoTime();
             System.out.println("Depth " + depth + " : " + (t1 - t0) / 1000000000 + " sec");
             System.out.println("Count = " + res.moveCount);
@@ -30,7 +26,7 @@ class PerftSpeedTest {
 
     }
 
-    public static PerftResult perft(Othello o, int depth) {
+    public static PerftResult perft(Oth o, int depth) {
 
         PerftResult result = new PerftResult();
         if (depth == 0) {
@@ -41,18 +37,18 @@ class PerftSpeedTest {
 
         // o.gen(o.trait);
 
-        List<Othello.Coups> moves = o.legalmoves();
+        List<Oth.Coups> moves = o.legalmoves(o);
 
         if (moves.size() != 0) {
-            for (Othello.Coups move : moves) {
+            for (Oth.Coups move : moves) {
                 o.move = move;
-                o.fmove(o.undomove);
+                o.fcoups(o, o.undomove);
 //                move.lscore()
 //                        .forEach(score -> rangeClosed(0, score.n())
 //                                .forEach(n -> o.etats[move.sq0() + n * score.dir()] = !undomove ? -o.trait : o.trait));
 //                o.etats[move.sq0()] = !undomove ? vide : o.trait;
-                PerftResult subPerft = perft(new Othello(o), depth - 1);
-                o.fmove(!o.undomove);
+                PerftResult subPerft = perft(new Oth(o), depth - 1);
+                o.fcoups(o, !o.undomove);
 //                move.lscore()
 //                        .forEach(score -> rangeClosed(0, score.n())
 //                                .forEach(n -> o.etats[move.sq0() + n * score.dir()] = undomove ? -o.trait : o.trait));
@@ -61,12 +57,11 @@ class PerftSpeedTest {
 
             }
         } else {
-            PerftResult subPerft = perft(new Othello(o), depth - 1);
+            PerftResult subPerft = perft(new Oth(o), depth - 1);
             result.moveCount += subPerft.moveCount;
         }
         return result;
     }
-
 
 
     //DEPTH  #LEAF NODES   #FULL-DEPTH  #HIGHER
@@ -90,10 +85,10 @@ class PerftSpeedTest {
         String[] expectcount = new String[]{"", "4", "12", "56", "244", "1396", "8200", "55092",
                 "390216", "3005288", "24571284", "212258800", "1939886636", "18429641748", "184042084512"};
 
-        Othello o = new Othello(null);
+        Oth o = new Oth(null);
         double t0 = System.nanoTime();
         for (int depth = 1; depth <= MAX_DEPTH; depth++) {
-            PerftResult res = perft(new Othello(o), depth);
+            PerftResult res = perft(new Oth(o), depth);
             double t1 = System.nanoTime();
             System.out.println("Depth " + depth + " : " + (t1 - t0) / 1000000000 + " sec");
             System.out.println("Count = " + res.moveCount + "  /  " + expectcount[depth]);
